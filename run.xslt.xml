@@ -1,0 +1,177 @@
+<?xml version="1.0"?>
+<!--
+# Copyright © (C) 2017 Emory Merryman <emory.merryman@gmail.com>
+#   This file is part of run-injector.
+#
+#   Run-injector is free software: you can redistribute it and/or modify
+#   it under the terms of the GNU General Public License as published by
+#   the Free Software Foundation, either version 3 of the License, or
+#   (at your option) any later version.
+#
+#   Run-injector is distributed in the hope that it will be useful,
+#   but WITHOUT ANY WARRANTY; without even the implied warranty of
+#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#   GNU General Public License for more details.
+#
+#   You should have received a copy of the GNU General Public License
+#   along with run-injector.  If not, see <http://www.gnu.org/licenses/>.
+-->
+<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+  <xsl:output method="text"/>
+  <xsl:variable name="tab">
+    <xsl:text><![CDATA[     ]]></xsl:text>
+  </xsl:variable>
+  <xsl:variable name="newline">
+    <xsl:text><![CDATA[
+]]></xsl:text>
+  </xsl:variable>
+  <xsl:template match="/run">
+    <xsl:text><![CDATA[#!/bin/bash]]></xsl:text>
+    <xsl:value-of select="$newline"/>
+    <xsl:call-template name="read-parameters"/>
+    <xsl:call-template name="write-sudo"/>
+    <xsl:call-template name="write-bin"/>
+    <xsl:call-template name="write-docker-run"/>
+  </xsl:template>
+  <xsl:template name="read-parameters">
+    <xsl:value-of select="$newline"/>
+    <xsl:text><![CDATA[while [[ "${#}" -gt 1 ]]]]></xsl:text>
+    <xsl:value-of select="$newline"/>
+    <xsl:text><![CDATA[do]]></xsl:text>
+    <xsl:value-of select="$newline"/>
+    <xsl:value-of select="$tab"/>
+    <xsl:text><![CDATA[case "${1}" in]]></xsl:text>
+    <xsl:for-each select="parameter">
+      <xsl:call-template name="read-parameter"/>
+    </xsl:for-each>
+    <xsl:value-of select="$newline"/>
+    <xsl:value-of select="$tab"/>
+    <xsl:value-of select="$tab"/>
+    <xsl:text><![CDATA[*) echo -e "Unrecognized switch \"${1}\"" && exit 64 ;;]]></xsl:text>
+    <xsl:value-of select="$newline"/>
+    <xsl:value-of select="$tab"/>
+    <xsl:text><![CDATA[esac]]></xsl:text>
+    <xsl:value-of select="$newline"/>
+    <xsl:text><![CDATA[done &&]]></xsl:text>
+  </xsl:template>
+  <xsl:template name="read-parameter">
+    <xsl:value-of select="$newline"/>
+    <xsl:value-of select="$tab"/>
+    <xsl:value-of select="$tab"/>
+    <xsl:text><![CDATA[--]]></xsl:text>
+    <xsl:value-of select="@name"/>
+    <xsl:text><![CDATA[)]]></xsl:text>
+    <xsl:choose>
+      <xsl:when test="@type='flag'">
+	<xsl:call-template name="read-flag"/>
+      </xsl:when>
+      <xsl:when test="@type='single'">
+	<xsl:call-template name="read-single"/>
+      </xsl:when>
+      <xsl:when test="@type='multiple'">
+	<xsl:call-template name="read-multiple"/>
+      </xsl:when>
+      <xsl:when test="@type='command'">
+	<xsl:call-template name="read-command"/>
+      </xsl:when>
+    </xsl:choose>
+    <xsl:text><![CDATA[ ;;]]></xsl:text>
+  </xsl:template>
+  <xsl:template name="read-single">
+    <xsl:text><![CDATA[ ([[ -z "]]></xsl:text>
+    <xsl:call-template name="environment-variable"/>
+    <xsl:text><![CDATA[" ]] || (echo "--]]></xsl:text>
+    <xsl:value-of select="@name"/>
+    <xsl:text><![CDATA[" is used multiple times" && exit ]]></xsl:text>
+    <xsl:value-of select="74+3*position()"/>
+    <xsl:text><![CDATA[)) && ([[ "${#}" -gt 2]] || (echo "--"]]></xsl:text>
+    <xsl:value-of select="@name"/>
+    <xsl:text><![CDATA[ does not have a value" && exit ]]></xsl:text>
+    <xsl:value-of select="75+3*position()"/>
+    <xsl:text><![CDATA[)) && ]]></xsl:text>
+    <xsl:call-template name="environment-variable-name"/>
+    <xsl:text><![CDATA[="]]></xsl:text>
+    <xsl:value-of select="@value"/>
+    <xsl:text><![CDATA[" && shift && shift]]></xsl:text>
+  </xsl:template>
+  <xsl:template name="read-flag">
+    <xsl:text><![CDATA[ ([[ -z "]]></xsl:text>
+    <xsl:call-template name="environment-variable"/>
+    <xsl:text><![CDATA[" ]] || (echo "--]]></xsl:text>
+    <xsl:value-of select="@name"/>
+    <xsl:text><![CDATA[ is used multiple times" && exit ]]></xsl:text>
+    <xsl:value-of select="76+3*position()"/>
+    <xsl:text><![CDATA[)) && ]]></xsl:text>
+    <xsl:call-template name="environment-variable-name"/>
+    <xsl:text><![CDATA[="]]></xsl:text>
+    <xsl:value-of select="@value"/>
+    <xsl:text><![CDATA[" && shift]]></xsl:text>
+  </xsl:template>
+  <xsl:template name="read-multiple">
+    <xsl:text><![CDATA[ ]]></xsl:text>
+    <xsl:call-template name="environment-variable-name"/>
+    <xsl:text><![CDATA[="]]></xsl:text>
+    <xsl:call-template name="environment-variable"/>
+    <xsl:text><![CDATA[ ]]></xsl:text>
+    <xsl:value-of select="@value"/>
+    <xsl:text><![CDATA[" && shift && shift]]></xsl:text>    
+  </xsl:template>
+  <xsl:template name="read-command">
+    <xsl:text><![CDATA[ shift && ]]></xsl:text>
+    <xsl:call-template name="environment-variable-name"/>
+    <xsl:text><![CDATA[="${@}" && shift "${#}"]]></xsl:text>
+  </xsl:template>
+  <xsl:template name="environment-variable-name">
+    <xsl:variable name="smallcase" select="'abcdefghijklmnopqrstuvwxyz-'"/>
+    <xsl:variable name="uppercase" select="'ABCDEFGHIJKLMNOPQRSTUVWXYZ_'"/>
+    <xsl:value-of select="translate(@name, $smallcase, $uppercase)"/>
+  </xsl:template>
+  <xsl:template name="environment-variable">
+    <xsl:text><![CDATA[${]]></xsl:text>
+    <xsl:call-template name="environment-variable-name"/>
+    <xsl:text><![CDATA[}]]></xsl:text>
+  </xsl:template>
+  <xsl:template name="write-docker-run">
+    <xsl:value-of select="$newline"/>
+    <xsl:text><![CDATA[echo '#!/bin/sh' | docker run --interactive --rm --volume ${SBIN}:/usr/local/sbin --workdir /usr/local/sbin alpine:3.4 tee ${PROGRAM_NAME}.sh &&]]></xsl:text>
+    <xsl:value-of select="$newline"/>
+    <xsl:text><![CDATA[echo \]]></xsl:text>
+    <xsl:value-of select="$newline"/>
+    <xsl:value-of select="$tab"/>
+    <xsl:text><![CDATA[docker \]]></xsl:text>
+    <xsl:value-of select="$newline"/>
+    <xsl:value-of select="$tab"/>
+    <xsl:text><![CDATA[run \]]></xsl:text>
+    <xsl:for-each select="parameter">
+      <xsl:call-template name="write-docker-run-parameter"/>
+    </xsl:for-each>
+    <xsl:value-of select="$newline"/>
+    <xsl:value-of select="$tab"/>
+    <xsl:text><![CDATA[${IMAGE} \]]></xsl:text>
+    <xsl:value-of select="$newline"/>
+    <xsl:value-of select="$tab"/>
+    <xsl:text><![CDATA[${COMMAND} | docker run --interactive --rm --volume ${SBIN}:/usr/local/sbin --workdir /usr/local/sbin alpine:3.4 tee -a ${PROGRAM_NAME}.sh &&]]></xsl:text>
+    <xsl:value-of select="$newline"/>
+    <xsl:text><![CDATA[docker run --interactive --rm --volume ${SBIN}:/usr/local/sbin --workdir /usr/local/sbin alpine:3.4 chmod 0500 ${PROGRAM_NAME}.sh]]></xsl:text>
+  </xsl:template>
+  <xsl:template name="write-docker-run-parameter">
+    <xsl:if test="@run='true'">
+      <xsl:value-of select="$newline"/>
+      <xsl:value-of select="$tab"/>
+      <xsl:call-template name="environment-variable"/>
+      <xsl:text><![CDATA[ \]]></xsl:text>
+    </xsl:if>
+  </xsl:template>
+  <xsl:template name="write-sudo">
+    <xsl:value-of select="$newline"/>
+    <xsl:text><![CDATA[sed -e "s#\${USER}#${USER}#" -e "s#\${PROGRAM_NAME}#${PROGRAM_NAME}#" /opt/docker/sudo.txt | docker run --interactive --rm --volume ${SUDO}:/etc/sudoers.d --workdir /etc/sudoers.d alpine:3.4 tee ${PROGRAM_NAME} &&]]></xsl:text>
+    <xsl:value-of select="$newline"/>
+    <xsl:text><![CDATA[docker run --interactive --rm --volume ${SUDO}:/etc/sudoers.d --workdir /etc/sudoers.d alpine:3.4 chmod 0444 ${PROGRAM_NAME} &&]]></xsl:text>
+  </xsl:template>
+  <xsl:template name="write-bin">
+    <xsl:value-of select="$newline"/>
+    <xsl:text><![CDATA[sed -e "s#\${PROGRAM_NAME}#${PROGRAM_NAME}#" /opt/docker/bin.txt | docker run --interactive --rm --volume ${BIN}:/usr/local/bin --workdir /usr/local/bin alpine:3.4 tee ${PROGRAM_NAME}&&]]></xsl:text>
+    <xsl:value-of select="$newline"/>
+    <xsl:text><![CDATA[docker run --interactive --rm --volume ${BIN}:/usr/local/bin --workdir /usr/local/bin alpine:3.4 chmod 0555 ${PROGRAM_NAME} &&]]></xsl:text>
+  </xsl:template>
+</xsl:stylesheet>
