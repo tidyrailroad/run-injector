@@ -77,7 +77,7 @@
   <parameter name="publish" type="multiple" value="--publish ${2}" run="true"/>
   <parameter name="publish-all" type="flag" value="--publish-all" run="true"/>  
   <parameter name="link" type="single" value="--link ${2}" run="true"/>  
-  <parameter name="environment" type="multiple" value="--environment ${2}" run="true"/>
+  <parameter name="env" type="multiple" value="--env ${2}" run="true"/>
   <parameter name="health-cmd" type="single" value="--health-cmd ${2}" run="true"/>
   <parameter name="health-interval" type="single" value="--health-interval ${2}" run="true"/>
   <parameter name="health-retries" type="single" value="--health-retries ${2}" run="true"/>
