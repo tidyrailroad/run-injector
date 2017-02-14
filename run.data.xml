@@ -23,7 +23,7 @@
   <parameter name="program-name" type="single" value="${2}" run="false"/>
   <parameter name="detached" type="flag" value="--detached" run="true"/>
   <parameter name="attached" type="multiple" value="--attached" run="true"/>
-  <parameter name="tty" type="flag" value="tty" run="true"/>
+  <parameter name="tty" type="flag" value="--tty" run="true"/>
   <parameter name="sig-proxy" type="single" value="--sig-proxy=${2}" run="true"/>
   <parameter name="interactive" type="flag" value="--interactive" run="true"/>
   <parameter name="name" type="single" value="--name=${2}" run="true"/>
@@ -39,7 +39,7 @@
   <parameter name="mac-address" type="single" value="--mac-address=${2}" run="true"/>
   <parameter name="ip" type="single" value="--ip=${2}" run="true"/>
   <parameter name="ip6" type="single" value="--ip6=${2}" run="true"/>
-  <parameter name="link-local-ip" type="multiple" value="--ling-local-ip=${2}" run="true"/>
+  <parameter name="link-local-ip" type="multiple" value="--link-local-ip=${2}" run="true"/>
   <parameter name="restart" type="single" value="--restart=${2}" run="true"/>
   <parameter name="rm" type="flag" value="--rm" run="true"/>
   <parameter name="security-opt" type="multiple" value="--security-opt=${2}" run="true"/>
