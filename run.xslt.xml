@@ -147,6 +147,9 @@
     </xsl:for-each>
     <xsl:value-of select="$newline"/>
     <xsl:value-of select="$tab"/>
+    <xsl:text><![CDATA[${DOOD} \]]></xsl:text>
+    <xsl:value-of select="$newline"/>
+    <xsl:value-of select="$tab"/>
     <xsl:text><![CDATA[${IMAGE} \]]></xsl:text>
     <xsl:value-of select="$newline"/>
     <xsl:value-of select="$tab"/>

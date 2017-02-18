@@ -21,6 +21,7 @@
   <parameter name="bin" type="single" value="${2}" run="false"/>
   <parameter name="sbin" type="single" value="${2}" run="false"/>
   <parameter name="program-name" type="single" value="${2}" run="false"/>
+  <parameter name="dood" type="flag" value="--volume /var/run/docker.sock:/var/run/docker.sock:ro" run="false"/>
   <parameter name="detached" type="flag" value="--detached" run="true"/>
   <parameter name="attached" type="multiple" value="--attached" run="true"/>
   <parameter name="tty" type="flag" value="--tty" run="true"/>
