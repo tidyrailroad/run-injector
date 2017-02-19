@@ -32,6 +32,7 @@
     <xsl:call-template name="write-sudo"/>
     <xsl:call-template name="write-bin"/>
     <xsl:call-template name="write-docker-run"/>
+    <xsl:call-template name="write-docker-pull"/>
   </xsl:template>
   <xsl:template name="read-parameters">
     <xsl:value-of select="$newline"/>
@@ -135,6 +136,7 @@
     <xsl:value-of select="$newline"/>
     <xsl:text><![CDATA[echo '#!/bin/sh' | docker run --interactive --rm --volume ${SBIN}:/usr/local/sbin --workdir /usr/local/sbin alpine:3.4 tee ${PROGRAM_NAME}.sh &&]]></xsl:text>
     <xsl:value-of select="$newline"/>
+    <xsl:value-of select="$newline"/>
     <xsl:text><![CDATA[echo \]]></xsl:text>
     <xsl:value-of select="$newline"/>
     <xsl:value-of select="$tab"/>
@@ -155,7 +157,7 @@
     <xsl:value-of select="$tab"/>
     <xsl:text><![CDATA[${COMMAND} | docker run --interactive --rm --volume ${SBIN}:/usr/local/sbin --workdir /usr/local/sbin alpine:3.4 tee -a ${PROGRAM_NAME}.sh &&]]></xsl:text>
     <xsl:value-of select="$newline"/>
-    <xsl:text><![CDATA[docker run --interactive --rm --volume ${SBIN}:/usr/local/sbin --workdir /usr/local/sbin alpine:3.4 chmod 0500 ${PROGRAM_NAME}.sh]]></xsl:text>
+    <xsl:text><![CDATA[docker run --interactive --rm --volume ${SBIN}:/usr/local/sbin --workdir /usr/local/sbin alpine:3.4 chmod 0500 ${PROGRAM_NAME}.sh &&]]></xsl:text>
   </xsl:template>
   <xsl:template name="write-docker-run-parameter">
     <xsl:if test="@run='true'">
@@ -176,5 +178,10 @@
     <xsl:text><![CDATA[sed -e "s#\${PROGRAM_NAME}#${PROGRAM_NAME}#" /opt/docker/bin.txt | docker run --interactive --rm --volume ${BIN}:/usr/local/bin --workdir /usr/local/bin alpine:3.4 tee ${PROGRAM_NAME}&&]]></xsl:text>
     <xsl:value-of select="$newline"/>
     <xsl:text><![CDATA[docker run --interactive --rm --volume ${BIN}:/usr/local/bin --workdir /usr/local/bin alpine:3.4 chmod 0555 ${PROGRAM_NAME} &&]]></xsl:text>
+  </xsl:template>
+  <xsl:template name="write-docker-pull">
+    <xsl:value-of select="$newline"/>
+    <xsl:value-of select="$tab"/>
+    <xsl:text><![CDATA[docker pull ${IMAGE}]]></xsl:text>
   </xsl:template>
 </xsl:stylesheet>

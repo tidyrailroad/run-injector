@@ -17,6 +17,7 @@
 
 apk update &&
     apk upgrade &&
-    apk add libxslt docker &&
+    apk add --no-cache libxslt &&
+    apk add --no-cache docker &&
     xsltproc /opt/docker/run.xslt.xml /opt/docker/run.data.xml > /opt/docker/entrypoint.sh &&
-    true
+    rm -rf /var/cache/apk/*
